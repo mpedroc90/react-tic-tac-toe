@@ -2,7 +2,6 @@
 import { useState } from "react"
 
 export function Square({  onClick , value }) {
- 
   return <button className="square"  onClick={ onClick} > { value } </button>
 }
 
@@ -21,7 +20,7 @@ export function Row({ row , board , play }) {
 }
 
 
-const isWinner = (board, player) => {
+const isWinner = (board)=> {
   
   const rows=new Array(3).fill(null).some((_, i) =>
       board[i][1] !== null && board[i][0] === board[i][1] && board[i][1] === board[i][2]
@@ -31,7 +30,6 @@ const isWinner = (board, player) => {
       board[0][i] !== null && board[0][i] === board[1][i] && board[1][i] === board[2][i]
   )
 
-
   const d = board[0][0] !== null && board[0][0] === board[1][1] && board[1][1] === board[2][2]
 
   const d1 = board[2][0] !== null && board[1][1] === board[2][0] && board[0][2] === board[1][1]
@@ -39,14 +37,26 @@ const isWinner = (board, player) => {
   return rows || cols || d || d1
 }
 
-function Board({ player, board, play }) {
+function Board() {
+  const initialBoard = [[null, null, null], [null, null, null], [null, null, null]]
+  const [winner, setWinner] = useState(null)
+  const [player, setPlayer] = useState(0)
+  const [board, setBoard] = useState(initialBoard)
   
 
-  function play(row, col, onPlay) {
+
+  function resetGame() { 
+    setWinner(null)
+    setBoard(initialBoard)
+    setPlayer(0)
+  }
+
+
+  function play(row, col) {
     
     return function () {
 
-      if(winner || newBoard[row][col] ) return
+      if(winner || board[row][col] ) return
       const newBoard = board.slice()
       newBoard[row][col] = player % 2 == 0 ? "X" : "O"
 
@@ -55,7 +65,7 @@ function Board({ player, board, play }) {
           setWinner(player)
       }
 
-      onPlay(newBoard)
+  
       setBoard(newBoard)
       
       setPlayer(player + 1)
@@ -68,57 +78,21 @@ function Board({ player, board, play }) {
   )
   
   return <>
-  
+      <label className={winner === null ? "hidden" : ""} > The Winner is {winner + 1} </label>
     {rows}
+      <div>
+          <button style={{ "margin-top": "50px" }} onClick={resetGame}> Reset</button>
+        </div>
    </>
 }
 
 export default function Game() {
 
-  const [winner, setWinner] = useState(null)
-  const [player, setPlayer] = useState(0)
-  const [board, setBoard] = useState([[null, null, null],[null,null,null],[null,null,null]] )
-
-  
-  const [history, setHistory] = useState([null, null, null], [null, null, null], [null, null, null]);
-  const currentSquares = history[history.length - 1];
-
-  function resetGame() { 
-    setWinner(null)
-    setBoard(initialBoard)
-    setPlayer(0)
-  }
-
-
-  
-  function play(row, col, onPlay) {
-    
-    return function () {
-
-      if(winner || newBoard[row][col] ) return
-      const newBoard = board.slice()
-      newBoard[row][col] = player % 2 == 0 ? "X" : "O"
-
-      
-      if (isWinner(newBoard, player)) {
-          setWinner(player)
-      }
-
-      onPlay(newBoard)
-      setBoard(newBoard)
-      
-      setPlayer(player + 1)
-    }
-  }
 
   return (
     <div className="game">
       <div className="game-board">
-        <label className={winner === null ? "hidden" : ""} > The Winner is {winner + 1} </label>
-        <Board player={player} board={board} play={play} />
-         <div>
-          <button style={{ "margin-top": "50px" }} onClick={resetGame}> Reset</button>
-        </div>
+        <Board/>
       </div>
       <div className="game-info">
         <ol>{/*TODO*/}</ol>
